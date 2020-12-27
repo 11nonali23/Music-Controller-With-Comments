@@ -11,6 +11,8 @@ export default class Room extends Component {
       isHost: false,
       // We want a state variable that tracks if the page is on settings mode or showing mode, so we can render what we need better
       showSettings: false,
+      // state variable that checks if spotify is authenticated or not
+      spotifyAuthenticated: false
     };
 
     // the react router by default the room code in the match prop
@@ -22,6 +24,7 @@ export default class Room extends Component {
     this.renderSettingsButton = this.renderSettingsButton.bind(this);
     this.renderSettings = this.renderSettings.bind(this);
     this.getRoomDetails = this.getRoomDetails.bind(this);
+    this.authenticateSpotify = this.authenticateSpotify.bind(this);
 
     // getting room details
     this.getRoomDetails();
@@ -44,6 +47,34 @@ export default class Room extends Component {
           guestCanPause: data.guest_can_pause,
           isHost: data.is_host,
         });
+        // called after the function execution
+        if(this.state.isHost) {
+          this.authenticateSpotify();
+        }
+      });
+  }
+
+  // Ask to backend if spotify is authenticated. NEED TO WAIT getRoomDetails
+  authenticateSpotify() {
+    fetch("/spotify/is-authenticated")
+      .then((response) => response.json())
+      .then((data) => {
+        // change state to if the user is authenticated
+        this.setState({ spotifyAuthenticated: data.status });
+        console.log(data.status);
+        // if user is not authenticated we need to authenticate him
+        if (!data.status) {
+          fetch("/spotify/get-auth-url")
+            .then((response) => response.json())
+            .then((data) => {
+              // visit the url to authenticate user into his spotify account
+              // window.location.replace to redirect in a foreign page
+              window.location.replace(data.url);
+              // then we will be redirected to the spotify_callback function to save the token
+              // then to the frontend
+              // then to the correct room we were in
+            });
+        }
       });
   }
 
