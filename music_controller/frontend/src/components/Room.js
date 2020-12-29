@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Grid, Button, Typography } from "@material-ui/core";
-import CreateRoomPage from './CreateRoomPage';
+import CreateRoomPage from "./CreateRoomPage";
+import MusicPlayer from "./MusicPlayer";
 
 export default class Room extends Component {
   constructor(props) {
@@ -12,7 +13,8 @@ export default class Room extends Component {
       // We want a state variable that tracks if the page is on settings mode or showing mode, so we can render what we need better
       showSettings: false,
       // state variable that checks if spotify is authenticated or not
-      spotifyAuthenticated: false
+      spotifyAuthenticated: false,
+      song: {},
     };
 
     // the react router by default the room code in the match prop
@@ -25,11 +27,25 @@ export default class Room extends Component {
     this.renderSettings = this.renderSettings.bind(this);
     this.getRoomDetails = this.getRoomDetails.bind(this);
     this.authenticateSpotify = this.authenticateSpotify.bind(this);
+    this.getCurrentSong = this.getCurrentSong.bind(this);
+
 
     // getting room details
     this.getRoomDetails();
-
   }
+
+  // Every second we request to spotify an update to the current playing song.
+  // So every time every user in the room make a request to spotify
+  // Spotify does not support WebSockets, but for ~50000 users shouldbe fine to do all these requests
+  componentDidMount() {
+    this.interval = setInterval(this.getCurrentSong, 10000);
+  }
+
+  componentWillUnmount() {
+    // stop making request to spotify
+    clearInterval(this.interval);
+  }
+
 
   getRoomDetails() {
     return fetch("/api/get-room" + "?code=" + this.roomCode)
@@ -48,7 +64,7 @@ export default class Room extends Component {
           isHost: data.is_host,
         });
         // called after the function execution
-        if(this.state.isHost) {
+        if (this.state.isHost) {
           this.authenticateSpotify();
         }
       });
@@ -75,6 +91,21 @@ export default class Room extends Component {
               // then to the correct room we were in
             });
         }
+      });
+  }
+
+  getCurrentSong() {
+    fetch("/spotify/current-song")
+      .then((response) => {
+        if (!response.ok) {
+          return {};
+        } else {
+          return response.json();
+        }
+      })
+      .then((data) => {
+        this.setState({ song: data });
+        console.log(data);
       });
   }
 
@@ -139,11 +170,11 @@ export default class Room extends Component {
     );
   }
 
+  // ... = spread operator -> divide the keys of a dict and separate them to pass singly
   render() {
     if (this.state.showSettings) {
       return this.renderSettings();
     }
-
     return (
       <Grid container spacing={1}>
         <Grid item xs={12} align="center">
@@ -151,21 +182,7 @@ export default class Room extends Component {
             Code: {this.roomCode}
           </Typography>
         </Grid>
-        <Grid item xs={12} align="center">
-          <Typography variant="h6" component="h6">
-            Votes: {this.state.votesToSkip}
-          </Typography>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <Typography variant="h6" component="h6">
-            Guest Can Pause: {this.state.guestCanPause.toString()}
-          </Typography>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <Typography variant="h6" component="h6">
-            Host: {this.state.isHost.toString()}
-          </Typography>
-        </Grid>
+        <MusicPlayer {...this.state.song} />
         {this.state.isHost ? this.renderSettingsButton() : null}
         <Grid item xs={12} align="center">
           <Button
