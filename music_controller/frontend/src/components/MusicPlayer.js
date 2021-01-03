@@ -15,6 +15,22 @@ export default class MusicPlayer extends Component {
     super(props);
   }
 
+  pauseSong() {
+    const requestOptions = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    };
+    fetch("/spotify/pause", requestOptions);
+  }
+
+  playSong() {
+    const requestOptions = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    };
+    fetch("/spotify/play", requestOptions);
+  }
+
   render() {
     // percentage of the song minutes compared to the toal amount
     const songProgress = (this.props.time / this.props.duration) * 100;
@@ -33,7 +49,12 @@ export default class MusicPlayer extends Component {
               {this.props.artist}
             </Typography>
             <div>
-              <IconButton>
+              <IconButton
+                onClick={() => {
+                  // playing -> call pausing or viceversa
+                  this.props.is_playing ? this.pauseSong() : this.playSong();
+                }}
+              >
                 {this.props.is_playing ? <PauseIcon /> : <PlayArrowIcon />}
               </IconButton>
               <IconButton>
@@ -42,7 +63,7 @@ export default class MusicPlayer extends Component {
             </div>
           </Grid>
         </Grid>
-        <LinearProgress variant="determinate" value={songProgress} color="secondary"/>
+        <LinearProgress variant="determinate" value={songProgress} />
       </Card>
     );
   }

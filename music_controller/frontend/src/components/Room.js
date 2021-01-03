@@ -3,6 +3,7 @@ import { Grid, Button, Typography } from "@material-ui/core";
 import CreateRoomPage from "./CreateRoomPage";
 import MusicPlayer from "./MusicPlayer";
 
+// TODO to make this look nicer we can set a DEFAULT STATE when no song is on.
 export default class Room extends Component {
   constructor(props) {
     super(props);
@@ -38,7 +39,7 @@ export default class Room extends Component {
   // So every time every user in the room make a request to spotify
   // Spotify does not support WebSockets, but for ~50000 users shouldbe fine to do all these requests
   componentDidMount() {
-    this.interval = setInterval(this.getCurrentSong, 10000);
+    this.interval = setInterval(this.getCurrentSong, 1000);
   }
 
   componentWillUnmount() {

@@ -104,6 +104,44 @@ class CurrentSong(APIView):
             'id': song_id
         }
 
-        print("song",song)
+        #print("song",song)
 
         return Response(song, status=status.HTTP_200_OK)
+        
+
+# Can we request the play and pause from the frontend ?
+# Maybe we can, but it's unsecure. It's better to call from the backend beacuse we have the access token in it
+class PauseSong(APIView):
+    def put(self, response, format=None):
+        # getting the corresponding room
+        room_code = self.request.session.get('room_code')
+        room = Room.objects.filter(code=room_code)
+        if room.exists():
+            room = room[0]
+        else:
+            return Response({'Error': "unexisting room"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # checking if the user has the permission to pause the song
+        if self.request.session.session_key == room.host or room.guest_can_pause:
+            pause_song(room.host)
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+        
+        return Response({}, status=status.HTTP_403_FORBIDDEN)
+
+
+class PlaySong(APIView):
+    def put(self, response, format=None):
+        # getting the corresponding room
+        room_code = self.request.session.get('room_code')
+        room = Room.objects.filter(code=room_code)
+        if room.exists():
+            room = room[0]
+        else:
+            return Response({'Error': "unexisting room"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # checking if the user has the permission to pause the song
+        if self.request.session.session_key == room.host or room.guest_can_pause:
+            play_song(room.host)
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+        
+        return Response({}, status=status.HTTP_403_FORBIDDEN)
