@@ -134,6 +134,7 @@ class PlaySong(APIView):
         # getting the corresponding room
         room_code = self.request.session.get('room_code')
         room = Room.objects.filter(code=room_code)
+        # chhecking if the room exist is a good practice, not doing it won't break the application
         if room.exists():
             room = room[0]
         else:
@@ -145,3 +146,17 @@ class PlaySong(APIView):
             return Response({}, status=status.HTTP_204_NO_CONTENT)
         
         return Response({}, status=status.HTTP_403_FORBIDDEN)
+
+
+class SkipSong(APIView):
+    def post(self, request, format=None):
+        room_code = self.request.session.get('room_code')
+        room = Room.objects.filter(code=room_code)
+        # chhecking if the room exist is a good practice, not doing it won't break the application
+        if room.exists():
+            room = room[0]
+        else:
+            return Response({'Error': "unexisting room"}, status=status.HTTP_404_NOT_FOUND)
+
+        if self.request.session.session_key == room.host:
+            skip_song(room.host)
