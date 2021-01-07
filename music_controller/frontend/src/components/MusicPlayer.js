@@ -64,11 +64,13 @@ export default class MusicPlayer extends Component {
                 }}
               >
                 {this.props.is_playing ? <PauseIcon /> : <PlayArrowIcon />}
+
               </IconButton>
               <IconButton onClick={
                 // using the arrow function we don't need to bind the skip song method to the class
                 () => this.skipSong()
               }>
+                {this.props.votes} / {this.props.votes_required}
                 <SkipNextIcon />
               </IconButton>
             </div>

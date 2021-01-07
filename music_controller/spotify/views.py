@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from requests import Request, post
 from .util import *
 from api.models import Room
+from .models import Vote
 
 # this views classes will contain the logic to authenticate to spotify
 
@@ -63,6 +64,7 @@ class IsAuthenticated(APIView):
     
 
 # view to return information about the current song
+# since this endpoint is called every second the music player would be updated every time
 class CurrentSong(APIView):
     def get(self, request, format=None):
         room_code = self.request.session.get('room_code')
@@ -93,6 +95,10 @@ class CurrentSong(APIView):
             name = artist.get('name')
             artist_string += name
 
+        # we say to the frontend how much votes the current song has
+        num_votes = len(Vote.objects.filter(room=room, song_id=song_id))
+
+
         song = {
             'title': item.get('name'),
             'artist': artist_string,
@@ -100,13 +106,25 @@ class CurrentSong(APIView):
             'time': progress,
             'image_url': album_cover,
             'is_playing': is_playing,
-            'votes': 0,
+            'votes': num_votes,
+            'votes_required': room.votes_to_skip,
             'id': song_id
         }
 
         #print("song",song)
 
+        self.update_room_song(room, song_id)
+
         return Response(song, status=status.HTTP_200_OK)
+
+    def update_room_song(self, room, song_id):
+        current_song = room.current_song
+        # check if we're not updating the same song
+        if current_song != song_id:
+            room.current_song = song_id
+            room.save(update_fields=['current_song'])
+            # a new song need to refresh the votes, we have the room as foreign key :)
+            votes = Vote.objects.filter(room=room).delete()
         
 
 # Can we request the play and pause from the frontend ?
@@ -157,6 +175,22 @@ class SkipSong(APIView):
             room = room[0]
         else:
             return Response({'Error': "unexisting room"}, status=status.HTTP_404_NOT_FOUND)
+        # get votes for the current song in the room
+        # we want to make sure that we select older votes, so we need also the current song
+        # edge case: if the song is played twice it will be skipped,
+        # but if you skipped once maybe you would skip it twice
+        votes = Vote.objects.filter(room=room, song_id=room.current_song)
+        votes_needed = room.votes_to_skip
 
-        if self.request.session.session_key == room.host:
+        # we also check the amount of votes and skip the song if the votes are greater than needed
+        if self.request.session.session_key == room.host or len(votes) + 1 >= votes_needed:
+            # clear the votes if the song is skipped
+            votes.delete()
             skip_song(room.host)
+        # create the vote if the user has pressed skip song
+        else:
+            vote = Vote(user=self.request.session.session_key,
+                        room=room, song_id=room.current_song)
+            vote.save()
+
+        return Response({}, status.HTTP_204_NO_CONTENT)

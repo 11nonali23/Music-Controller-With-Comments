@@ -9,6 +9,7 @@ urlpatterns = [
     # name give a formal name, so when we redirect we know where to
     path('', index, name=''),
     path('join', index),
+    path('info', index),
     path('create', index),
     path('room/<str:roomCode>', index)
 ]
