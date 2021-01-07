@@ -12,6 +12,10 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 // show something collapsed on the screen
 import { Collapse } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
+import SystemUpdateAltIcon from '@material-ui/icons/SystemUpdateAlt';
+import AddIcon from '@material-ui/icons/Add';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+
 
 // used also to update a room
 export default class CreateRoomPage extends Component {
@@ -108,13 +112,19 @@ export default class CreateRoomPage extends Component {
             color="primary"
             variant="contained"
             onClick={this.handleRoomButtonPressed}
+            fullWidth
           >
-            Create A Room
+            <AddIcon/>
           </Button>
         </Grid>
         <Grid item xs={12} align="center">
-          <Button color="secondary" variant="contained" to="/" component={Link}>
-            Back
+          <Button color="secondary"
+                  variant="contained"
+                  to="/" 
+                  component={Link}
+                  fullWidth
+          >
+            <ArrowBackIcon/>
           </Button>
         </Grid>
       </Grid>
@@ -130,8 +140,9 @@ export default class CreateRoomPage extends Component {
           color="primary"
           variant="contained"
           onClick={this.handleUpdateButtonPressed}
+          fullWidth
         >
-          Update Room
+          <SystemUpdateAltIcon/>
         </Button>
       </Grid>
     );

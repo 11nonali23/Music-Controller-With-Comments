@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { TextField, Button, Grid, Typography } from "@material-ui/core";
 import { Link } from "react-router-dom";
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import DoneIcon from '@material-ui/icons/Done';
 
 export default class RoomJoinPage extends Component {
   constructor(props) {
@@ -37,13 +39,20 @@ export default class RoomJoinPage extends Component {
             variant="contained"
             color="primary"
             onClick={this.roomButtonPressed}
+            fullWidth
           >
-            Enter Room
+            <DoneIcon/>
           </Button>
         </Grid>
         <Grid item xs={12} align="center">
-          <Button variant="contained" color="secondary" to="/" component={Link}>
-            Back
+          <Button 
+            variant="contained" 
+            color="secondary" 
+            to="/" 
+            component={Link}
+            fullWidth
+          >
+            <ArrowBackIcon/>
           </Button>
         </Grid>
       </Grid>

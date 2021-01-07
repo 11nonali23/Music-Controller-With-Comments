@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import { Grid, Button, Typography } from "@material-ui/core";
+import SettingsIcon from '@material-ui/icons/Settings';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import CloseIcon from '@material-ui/icons/Close';
 import CreateRoomPage from "./CreateRoomPage";
 import MusicPlayer from "./MusicPlayer";
 
@@ -147,8 +150,9 @@ export default class Room extends Component {
             variant="contained"
             color="secondary"
             onClick={() => this.updateShowSettings(false)}
+            fullWidth
           >
-            Close
+            <CloseIcon/>
           </Button>
         </Grid>
       </Grid>
@@ -164,8 +168,9 @@ export default class Room extends Component {
           variant="contained"
           color="primary"
           onClick={() => this.updateShowSettings(true)}
+          fullWidth
         >
-          Settings
+          <SettingsIcon/>
         </Button>
       </Grid>
     );
@@ -190,8 +195,9 @@ export default class Room extends Component {
             variant="contained"
             color="secondary"
             onClick={this.leaveButtonPressed}
+            fullWidth
           >
-            Leave Room
+            <ExitToAppIcon/>
           </Button>
         </Grid>
       </Grid>
