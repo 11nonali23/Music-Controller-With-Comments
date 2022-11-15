@@ -12,6 +12,3 @@ I love restyling websites and I applied more CSS to the app.
 
 ## New features!
 Lately in the serires I will create some features.
-
-# Sorry Tim
-I had problem forking your repo but I have linked it.
